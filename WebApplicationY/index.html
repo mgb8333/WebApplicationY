@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Message App</title>
+</head>
+<body>
+
+    <!--<div>
+        <h2>All Messages</h2>
+        <ul id="messages" />
+    </div>-->
+    <div>
+        <h2>Search by ID</h2>
+        <h3>(1 thru 6 are valid - 7+ should say Not Found)</h3>
+        <input type="text" id="messageItemId" size="5" />
+        <input type="button" value="Search" onclick="find();" />
+        <p id="messageItem" />
+    </div>
+
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
+    <script>
+        var apiUnspecifiedOutputDirection = '<%=System.Configuration.ConfigurationManager.AppSettings["UnspecifiedOutputDirection"].ToString() %>';
+        var uri = 'api/message';
+
+        $(document).ready(function () {
+          // Send an AJAX request
+          //$.getJSON(uri)
+          //    .done(function (data) {
+          //      // On success, 'data' contains a list of products.
+          //      $.each(data, function (key, item) {
+          //        // Add a list item for the product.
+          //        $('<li>', { text: formatMessageItem(messageItem) }).appendTo($('#messages'));
+          //      });
+          //    })
+          //    .fail(function (jqXHR, textStatus, err) {
+          //      $('#messageItem').text('Error: ' + err);
+          //    });
+        });
+
+        function formatMessageItem(msgItem) {
+            var msgType;
+            if (msgItem.MessageType == 1)
+            {
+                msgType = "Console";
+            }
+            else if (msgItem.MessageType == 2)
+            {
+                msgType = "Webpage";
+            }
+            else
+            {
+                msgType = "Unspecified";
+            }
+            return msgItem.Id + " : " + msgType + ' : ' + msgItem.MessageText;
+        }
+
+        function find() {
+            var id = $('#messageItemId').val();
+            $.getJSON(uri + '/' + id)
+                .done(function (data) {
+                    var output = formatMessageItem(data);
+
+                    // Check the message type first to intercept an "unspecified" output message
+                    // Look at the configuration flag to see which way unspecified messages are to be presented
+                    if (data.MessageType == 3)
+                    {
+                        if (apiUnspecifiedOutputDirection.toLowerCase() == 'console')
+                        {
+                            data.MessageType = 1;
+                        }
+                        else
+                        {
+                            data.MessageType = 2;
+                        }
+                    }
+
+                    if (data.MessageType == 1)
+                    {
+                        console.log(output);
+                        $('#messageItem').text("Output sent to console");
+                    }
+                    else if (data.MessageType == 2)
+                    {
+                        console.log("Output sent to the page/screen");
+                        $('#messageItem').text(output);
+                    }
+                })
+                .fail(function (jqXHR, textStatus, err) {
+                $('#messageItem').text('Error: ' + err);
+            });
+        }
+    </script>
+</body>
+</html>
