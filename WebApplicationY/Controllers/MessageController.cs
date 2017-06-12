@@ -16,7 +16,7 @@ namespace WebApplicationY.Controllers
 
         public IHttpActionResult GetMessageItem(int id)
         {
-            string outputKey = ConfigurationManager.AppSettings["UnspecifiedOutputDirection"];
+            string outputKey = ConfigurationManager.AppSettings["UnspecifiedOutputDirection"] != null ? ConfigurationManager.AppSettings["UnspecifiedOutputDirection"] : "Console";
 
             var messageItem = _repository.GetById(id);
             if (messageItem == null)
